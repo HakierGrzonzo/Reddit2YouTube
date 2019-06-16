@@ -113,4 +113,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+
+# repository specific
 temp/
+fonts/
