@@ -31,3 +31,5 @@ example implementation in Main.py just look at it
 2. Specify target subreddit (without r/), mode (hot, new, top etc) and limit (maximal number of posts) and fetch some stories using 'storyFetch.GetStories'
 3. Make some frames using 'DrawFrame.GenerateFrames'
  
+## Sample output:
+https://imgur.com/yq0m6z7
