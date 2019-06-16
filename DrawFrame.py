@@ -1,7 +1,9 @@
 import os
+
 from PIL import Image, ImageDraw, ImageFont
 
-debug = True
+debug = False
+
 
 def word_wrap(string, width=80, ind1=0, ind2=0, prefix=''):
 	""" word wrapping function.
@@ -26,8 +28,8 @@ def word_wrap(string, width=80, ind1=0, ind2=0, prefix=''):
 
 	return newstring + string
 
-TitleFont = ImageFont.truetype("fonts/Futura Bold font.ttf", 20)
-TextFont = ImageFont.truetype("fonts/Futura Light font.ttf", 12)
+TitleFont = ImageFont.truetype("fonts/Futura Bold font.ttf", 35)
+TextFont = ImageFont.truetype("fonts/Futura Light font.ttf", 35)
 
 def MakeTextFrame(title, text, Op):
 	"""returns frame with text"""
@@ -41,25 +43,42 @@ def MakeTextFrame(title, text, Op):
 
 
 
-def GenerateFrames(title, selftext, Op):
+def GenerateFrames(title, selftext, Op, externalDadjokecounter):
 	"""Generate frames with title, post's text and OP at the bottom"""
 	paragraphs = selftext.splitlines()
 	counter = 0
 	lastparagraph = ""
+	print('Attempt to generate story: '+ title)
 	try:
-		if not(os.path.exists("temp/" + title)):
-			os.makedirs(("temp/" + title))
+		try:
+			if not(os.path.exists("temp/" + title)):
+				os.makedirs(("temp/" + title))
+			path = "temp/" + title + "/" + title
+		except Exception as e:
+			print("[warn:GenerateFrames] trying fallback dadjoke naming")
+			if not(os.path.exists("temp/" + 'dadjoke' + str(externalDadjokecounter))):
+				os.makedirs(("temp/" + 'dadjoke' + str(externalDadjokecounter)))
+			path = "temp/" + 'dadjoke' + str(externalDadjokecounter) + "/" + 'dadjoke'
+			externalDadjokecounter = externalDadjokecounter +1
+		
 		for paragraph in paragraphs:
-			paragraph = word_wrap(paragraph, width = 300)
+			paragraph = word_wrap(paragraph, width = 180)
 			if not(len(paragraph) == 0):
 				if len(lastparagraph + '\n' + paragraph) > 600:
-					MakeTextFrame(title, lastparagraph + '\n' + paragraph, Op).save("temp/" + title + "/" + title + str(counter) + ".png")
+					MakeTextFrame(title, lastparagraph + '\n' + paragraph, Op).save(path + str(counter) + ".png")
 					if debug:
 						print("made paragraph: " + str(counter) + " with length of: " + str(len(lastparagraph + '\n' + paragraph)))
 					counter = counter +1
 					lastparagraph = ""
 				else:
 					lastparagraph = lastparagraph + '\n' + paragraph
+		if lastparagraph != "":
+			MakeTextFrame(title, lastparagraph, Op).save(path + str(counter) + ".png")
+			if debug:
+				print("made paragraph: " + str(counter) + " with length of: " + str(len(lastparagraph)))
+			counter = counter +1
+			lastparagraph = ""
+
 	except Exception as e:
 		print("[ERROR:GenerateFrames] story: '"+title+"' failed to generate frames")
 		print(e)
