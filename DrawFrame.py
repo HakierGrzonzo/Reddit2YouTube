@@ -62,7 +62,7 @@ def GenerateFrames(title, selftext, Op, externalDadjokecounter):
 			externalDadjokecounter = externalDadjokecounter +1
 		
 		for paragraph in paragraphs:
-			paragraph = word_wrap(paragraph, width = 180)
+			paragraph = word_wrap(paragraph, width = 150)
 			if not(len(paragraph) == 0):
 				if len(lastparagraph + '\n' + paragraph) > 600:
 					MakeTextFrame(title, lastparagraph + '\n' + paragraph, Op).save(path + str(counter) + ".png")
