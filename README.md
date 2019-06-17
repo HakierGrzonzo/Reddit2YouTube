@@ -23,10 +23,13 @@ Then this somewhat working thing is for you!
 ## How to use:
 example implementation in Main.py just look at it
 1. Create fonts folder, put some fonts there, declare them like so:
-'''
-DrawFrame.settings = DrawFrame.TextFrame(TitleFont = ImageFont.truetype("fonts/Futura Bold font.ttf", 35), TextFont = ImageFont.truetype("fonts/Futura Light font.ttf", 35))
-"""For more settings look in class declaration!"""
-'''
+
+>DrawFrame.settings = DrawFrame.TextFrame(TitleFont = ImageFont.truetype("fonts/Futura Bold font.ttf", 35), TextFont = >ImageFont.truetype("fonts/Futura Light font.ttf", 35))
+>
+>"""For more settings look in class declaration!"""
+
 2. Specify target subreddit (without r/), mode (hot, new, top etc) and limit (maximal number of posts) and fetch some stories using 'storyFetch.GetStories'
 3. Make some frames using 'DrawFrame.GenerateFrames'
  
+## Sample output:
+https://imgur.com/yq0m6z7
