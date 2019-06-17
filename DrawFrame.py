@@ -1,8 +1,10 @@
-import os
+import os, pickle
 
 from PIL import Image, ImageDraw, ImageFont
 
-debug = True
+
+
+
 
 
 def word_wrap(string, width=80, ind1=0, ind2=0, prefix=''):
@@ -45,7 +47,7 @@ class TextFrame(object):
 	TextRowLength = 150
 	TextParagraphLength = 600
 
-	def __init__(self, resolution = (1920, 1080), background = 'black', textcolor = 'white', TitleFont = None, TextFont = None, TitlePos = (20, 10), TextPos = (10, 100) , FootPos = (1500, 1040), TitleRowLength = 80, TextRowLength = 150, TextParagraphLength = 600):
+	def __init__(self, resolution = (1920, 1080), background = 'black', textcolor = 'white', TitleFont = ImageFont.truetype("fonts/Futura Bold font.ttf", 35), TextFont = ImageFont.truetype("fonts/Futura Light font.ttf", 35), TitlePos = (20, 10), TextPos = (10, 100) , FootPos = (1500, 1040), TitleRowLength = 80, TextRowLength = 150, TextParagraphLength = 600):
 		super(TextFrame, self).__init__()
 		self.resolution = resolution
 		self.background = background
@@ -60,6 +62,8 @@ class TextFrame(object):
 		self.TextParagraphLength = TextParagraphLength
 
 settings = TextFrame()
+debug = False
+externalDadjokecounter = 0
 
 def MakeTextFrame(title, text, Op):
 	"""returns frame with text"""
@@ -73,48 +77,78 @@ def MakeTextFrame(title, text, Op):
 
 
 
-def GenerateFrames(title, selftext, Op, externalDadjokecounter):
+def GenerateFrames(title, selftext, Op):
 	"""Generate textframes with title, post's text and OP at the bottom"""
 	"""split text to lines"""
 	paragraphs = selftext.splitlines()
 	counter = 0
 	lastparagraph = ""
-	print('Attempt to generate story: '+ title)
+	ReturnParagraphs = list()
+	global externalDadjokecounter
+
+	print('[INFO:GenerateFrames] Attempt to generate story: '+ title)
 	"""Check if target directory exists, if not create it with post's title. If that fails then use dadjokeX naming scheme"""
 	try:
 		try:
 			if not(os.path.exists("temp/" + title)):
 				os.makedirs(("temp/" + title))
+
 			path = "temp/" + title + "/" + title
+			targetFolder = "temp/" + title
+
 		except Exception as e:
 			print("[WARN:GenerateFrames] trying fallback dadjoke naming")
 			if not(os.path.exists("temp/" + 'dadjoke' + str(externalDadjokecounter))):
 				os.makedirs(("temp/" + 'dadjoke' + str(externalDadjokecounter)))
+
 			path = "temp/" + 'dadjoke' + str(externalDadjokecounter) + "/" + 'dadjoke'
+			targetFolder = "temp/" + 'dadjoke' + str(externalDadjokecounter)
 			externalDadjokecounter = externalDadjokecounter +1
 		"""
 			Group lines to paragraphs (so a minmum length of settings.TextParagraphLength is reached,
 			Then wrap lines and than make and save the TextFrame
 		"""
+		ReturnParagraphs.append(title)
 		for paragraph in paragraphs:
 			paragraph = word_wrap(paragraph, width = settings.TextRowLength)
+
 			if not(len(paragraph) == 0):
 				if len(lastparagraph + '\n' + paragraph) > settings.TextParagraphLength:
 					MakeTextFrame(title, lastparagraph + '\n' + paragraph, Op).save(path + str(counter) + ".png")
+
 					if debug:
-						print("made paragraph: " + str(counter) + " with length of: " + str(len(lastparagraph + '\n' + paragraph)))
+						print("[DEBUG:GenerateFrames] made paragraph: " + str(counter) + " with length of: " + str(len(lastparagraph + '\n' + paragraph)))
+
+					ReturnParagraphs.append(lastparagraph + '\n' + paragraph)
 					counter = counter +1
 					lastparagraph = ""
+
 				else:
 					lastparagraph = lastparagraph + '\n' + paragraph
+
 		"""if some text was left but it was to short to trigger previous if statment"""
 		if lastparagraph != "":
 			MakeTextFrame(title, lastparagraph, Op).save(path + str(counter) + ".png")
+
 			if debug:
-				print("made paragraph: " + str(counter) + " with length of: " + str(len(lastparagraph)))
+				print("[DEBUG:GenerateFrames] made leftover paragraph: " + str(counter) + " with length of: " + str(len(lastparagraph)))
+
+			ReturnParagraphs.append(lastparagraph)
 			counter = counter +1
 			lastparagraph = ""
 
+		Output = list()
+		for paragraph in ReturnParagraphs:
+			Output.append(paragraph.replace("\n"," "))
+
+		with open(str(targetFolder+'/text.pkl'),"wb") as fp:
+			pickle.dump(str(Output), fp)
+
 	except Exception as e:
-		print("[ERROR:GenerateFrames] story: '"+title+"' failed to generate frames")
-		print(e)
+		print("[ERROR:GenerateFrames] story: '"+title+"' failed to generate frames: " + e)
+
+		try:
+			os.rmdir(targetFolder)
+		except Exception as e:
+			print("[ERROR:GenerateFrames] could not remove leftover directory: " + e)
+		
