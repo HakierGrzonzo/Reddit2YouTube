@@ -9,6 +9,7 @@ Then this somewhat working thing is for you!
 - Downloads top Reddit posts from specified subreddit as a .json file
 - Automatically make slides with the text, ready to be inserted into your M$ MovieMaker timeline!
 - Just add music and voiceover!
+- Or just make the script read and show the slides to you [BETA]
 
 ## Planned features:
 - Automatic Text to speech.
